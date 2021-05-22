@@ -1,6 +1,21 @@
 # app.py
 from flask import Flask, request, jsonify
+import psycopg2
+
 app = Flask(__name__)
+
+##########################################################
+## DATABASE ACCESS
+##########################################################
+
+def db_connection():
+    db = psycopg2.connect(user = "rqhyeuzdbcvmqq",
+                            password = "41c503572ace0b116fc4a9406208e61892a4113fdc9476c6054f8b35620ce002",
+                            host = "ec2-54-155-226-153.eu-west-1.compute.amazonaws.com",
+                            port = "5432",
+                            database = "d68dqm1q7a4oj6")
+    return db
+
 
 @app.route('/getmsg/', methods=['GET'])
 def respond():
@@ -45,6 +60,21 @@ def post_something():
 @app.route('/')
 def index():
     return "<h1>Welcome to our server !!</h1>"
+
+
+# Database check
+@app.route('/database/')
+def database_check():
+    conn = db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT version()")
+    rows = cur.fetchall()
+
+    row = rows[0]
+    content = {'database': row[0]}
+
+    conn.close ()
+    return jsonify(content)
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
