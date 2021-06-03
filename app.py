@@ -1,8 +1,24 @@
 # app.py
 from flask import Flask, request, jsonify
-import psycopg2
+import psycopg2, os
 
 app = Flask(__name__)
+
+def removeQuotesFromValue(value):
+    value = value.replace("'", '"')
+    # value = value.replace('"', "")
+    return value
+
+def splitLineIntoParts(line):
+    line = line.lstrip()
+    line = line.rstrip()
+    line = removeQuotesFromValue(line)
+    line = line.split("=", 1)
+    return line
+
+def setConfigVar(name, value):
+    os.system('heroku config:set ' + name + '=' + value)
+
 
 ##########################################################
 ## DATABASE ACCESS
@@ -15,6 +31,21 @@ def db_connection():
                             port = "5432",
                             database = "d68dqm1q7a4oj6")
     return db
+
+
+@app.route('/getConfig/', methods=['GET'])
+def respondConfig():
+with open('.env') as e:
+    
+    for line in e:
+        l = splitLineIntoParts(line)
+        if (len(l) > 1):
+            name = l[0]
+            value = l[1]
+            #print()
+            #print ("*** Setting " + name + " = " + value + " ***")
+            #setConfigVar(name, value)
+            return jsonify("*** Setting " + name + " = " + value + " ***")
 
 
 @app.route('/getmsg/', methods=['GET'])
