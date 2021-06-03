@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 def db_connection():
 
-    DATABASE_URL = os.environ.get(‘DATABASE_URL’)
+    DATABASE_URL = os.environ.get('DATABASE_URL')
     con = psycopg2.connect(DATABASE_URL)
     return db
 
