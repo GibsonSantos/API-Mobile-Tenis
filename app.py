@@ -35,17 +35,17 @@ def db_connection():
 
 @app.route('/getConfig/', methods=['GET'])
 def respondConfig():
-with open('.env') as e:
-    
-    for line in e:
-        l = splitLineIntoParts(line)
-        if (len(l) > 1):
-            name = l[0]
-            value = l[1]
-            #print()
-            #print ("*** Setting " + name + " = " + value + " ***")
-            #setConfigVar(name, value)
-            return jsonify("*** Setting " + name + " = " + value + " ***")
+    with open('.env') as e:
+        
+        for line in e:
+            l = splitLineIntoParts(line)
+            if (len(l) > 1):
+                name = l[0]
+                value = l[1]
+                #print()
+                #print ("*** Setting " + name + " = " + value + " ***")
+                #setConfigVar(name, value)
+                return jsonify("*** Setting " + name + " = " + value + " ***")
 
 
 @app.route('/getmsg/', methods=['GET'])
