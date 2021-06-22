@@ -1,8 +1,3 @@
 Flask
 gunicorn
 psycopg2
-time
-datetime 
-timedelta
-functools
-wraps
