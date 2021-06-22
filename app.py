@@ -130,8 +130,8 @@ def registar_utilizador():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
-        ##return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Utilizador não encontrado"})
-        return print(error)
+        return jsonify({type(error).__module__.removesuffix('.errors')}:{type(error).__name__}: {str(error).rstrip()})
+        #return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Utilizador não encontrado"})
     return {"Código": OK_CODE}
 
 
