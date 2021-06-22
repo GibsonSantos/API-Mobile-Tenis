@@ -15,6 +15,7 @@ from flask import Flask, jsonify, request
 import logging, time, psycopg2, jwt, json
 from datetime import datetime, timedelta
 from functools import wraps
+import os
   
 app = Flask(__name__)   
 
@@ -129,7 +130,7 @@ def registar_utilizador():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
-        return jsonify({"Código": NOT_FOUND_CODE, "Erro": error})
+        return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Utilizador não encontrado"})
     return {"Código": OK_CODE}
 
 
