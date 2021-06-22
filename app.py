@@ -46,7 +46,7 @@ def auth_user(func):
 
         try:
             token = content["token"]
-            logger.info(f'Token Content, {token}')
+            #logger.info(f'Token Content, {token}')
             data = jwt.decode(token, app.config['SECRET_KEY'])    
 
             decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
@@ -54,7 +54,7 @@ def auth_user(func):
                 return jsonify({"Erro": "O Token expirou!", "Código": NOT_FOUND_CODE})
 
         except Exception as e:
-            logger.debug(e)
+            #logger.debug(e)
             return jsonify({'Erro': 'Token inválido', 'Código': FORBIDDEN_CODE})
         return func(*args, **kwargs)
     return decorated
@@ -65,13 +65,13 @@ def auth_user(func):
 ##########################################################
 @app.route("/login", methods=['POST'])
 def login():
-    logger.info("Autenticação do utilizador")
+    #logger.info("Autenticação do utilizador")
     content = request.get_json()
 
     if "n_identificacao" not in content or "senha" not in content:
         return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
-    logger.info(f'Request Content: {content}')
+    #logger.info(f'Request Content: {content}')
 
     get_user_info = """
                 SELECT *
@@ -93,10 +93,10 @@ def login():
                     'administrador': rows[0][7],
                     'expiration': str(datetime.utcnow() + timedelta(hours=1))
                 }, app.config['SECRET_KEY'])
-                logger.info(token)
+                #logger.info(token)
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        logger.error(error)
+        #logger.error(error)
         return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Utilizador não encontrado"})
     return {"Código": OK_CODE, 'Token': token.decode('utf-8')}
   
@@ -106,13 +106,13 @@ def login():
 ##########################################################
 @app.route("/registar_utilizador", methods=['POST'])
 def registar_utilizador():
-    logger.info("Registo do utilizador")
+    #logger.info("Registo do utilizador")
     content = request.get_json()
 
     if "n_identificacao" not in content or "nome" not in content or "senha" not in content or "email" not in content or "cargo" not in content: 
         return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
-    logger.info(f'Request Content: {content}')
+    #logger.info(f'Request Content: {content}')
 
     get_user_info = """
                 INSERT INTO utilizadores(n_identificacao, nome, senha, email, cargo, administrador) 
@@ -125,10 +125,10 @@ def registar_utilizador():
         with db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(get_user_info, values)
-                logger.info(f'{get_user_info} {values}')
+                #logger.info(f'{get_user_info} {values}')
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        logger.error(error)
+        #logger.error(error)
         return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Utilizador não encontrado"})
     return {"Código": OK_CODE}
 
@@ -139,13 +139,13 @@ def registar_utilizador():
 @app.route("/registar_sopa", methods=['POST'])
 @auth_user
 def registar_sopa():
-    logger.info("Registo da sopa")
+    #logger.info("Registo da sopa")
     content = request.get_json()
 
     if "nome" not in content:
         return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
-    logger.info(f'Request Content: {content}')
+    #logger.info(f'Request Content: {content}')
 
     get_user_info = """
                 INSERT INTO sopas(nome) 
@@ -162,10 +162,10 @@ def registar_sopa():
         with db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(get_user_info, values)
-                logger.info(f'{get_user_info} {values}')
+                #logger.info(f'{get_user_info} {values}')
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        logger.error(error)
+        #logger.error(error)
         return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Sopa não inserida"})
     return {"Código": OK_CODE}
 
@@ -176,13 +176,13 @@ def registar_sopa():
 @app.route("/registar_prato", methods=['POST'])
 @auth_user
 def registar_prato():
-    logger.info("Registo do prato")
+    #logger.info("Registo do prato")
     content = request.get_json()
 
     if "tipo" not in content or "nome" not in content:
         return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
-    logger.info(f'Request Content: {content}')
+    #logger.info(f'Request Content: {content}')
 
     get_user_info = """
                 INSERT INTO pratos(tipo, nome) 
@@ -200,10 +200,10 @@ def registar_prato():
         with db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(get_user_info, values)
-                logger.info(f'{get_user_info} {values}')
+                #logger.info(f'{get_user_info} {values}')
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        logger.error(error)
+        #logger.error(error)
         return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Prato não inserido"})
     return {"Código": OK_CODE}
 
@@ -214,13 +214,13 @@ def registar_prato():
 @app.route("/registar_sobremesa", methods=['POST'])
 @auth_user
 def registar_sobremesa():
-    logger.info("Registo da Sobremesa")
+    #logger.info("Registo da Sobremesa")
     content = request.get_json()
 
     if "nome" not in content:
         return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
-    logger.info(f'Request Content: {content}')
+    #logger.info(f'Request Content: {content}')
 
     get_user_info = """
                 INSERT INTO sobremesas(nome) 
@@ -238,10 +238,10 @@ def registar_sobremesa():
         with db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(get_user_info, values)
-                logger.info(f'{get_user_info} {values}')
+                #logger.info(f'{get_user_info} {values}')
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        logger.error(error)
+        #logger.error(error)
         return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Sobremesa não inserida"})
     return {"Código": OK_CODE}
 
@@ -252,10 +252,10 @@ def registar_sobremesa():
 @app.route("/listar_sps", methods=['POST'])
 @auth_user
 def listar_sps():
-    logger.info("Listagem de Sopas, Pratos e Sobremesas")
+    #logger.info("Listagem de Sopas, Pratos e Sobremesas")
     content = request.get_json()
 
-    logger.info(f'Request Content: {content}')
+    #logger.info(f'Request Content: {content}')
 
     get_sopas = """
                 SELECT * from sopas ORDER BY nome;
@@ -290,10 +290,10 @@ def listar_sps():
 
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        logger.error("Ocorreu um erro : %s", error)
+        #logger.error("Ocorreu um erro : %s", error)
         return jsonify({"Erro": str(error), "Código": SERVER_ERROR})
 
-    logger.info("Statistics operation successful")
+    #logger.info("Statistics operation successful")
     return jsonify(
         {                   
             "Sopas": [{"id_sopa": id_sopa, "nome": nome} for id_sopa, nome in lista_sopas],
@@ -309,13 +309,13 @@ def listar_sps():
 @app.route("/criar_ementa", methods=['POST'])
 @auth_user
 def criar_ementa():
-    logger.info("Criar ementa")
+    #logger.info("Criar ementa")
     content = request.get_json()
 
     if "preco" not in content or "sobremesas_id_sobremesa" not in content or "sopas_id_sopa" not in content or "pratos_id_prato" not in content:
         return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
-    logger.info(f'Request Content: {content}')
+    #logger.info(f'Request Content: {content}')
 
     get_user_info = """
                 INSERT INTO ementas(preco, utilizadores_id, sobremesas_id_sobremesa, sopas_id_sopa, pratos_id_prato) 
@@ -335,11 +335,11 @@ def criar_ementa():
         with db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(get_user_info, values)
-                logger.info(f'{get_user_info} {values}')
+                #logger.info(f'{get_user_info} {values}')
                 query = cursor.fetchone()[0]
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        logger.error(error)
+        #logger.error(error)
         return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Ementa não inserida"})
     # return {"Código": OK_CODE}
     return "%s" % (query)
@@ -351,7 +351,7 @@ def criar_ementa():
 @app.route("/listar_ementas", methods=['POST'])
 @auth_user
 def listar_ementas():
-    logger.info("Listagem de Ementas")
+    #logger.info("Listagem de Ementas")
     content = request.get_json()
 
     conn = db_connection()
@@ -361,9 +361,9 @@ def listar_ementas():
     rows = cur.fetchall()
 
     payload = []
-    logger.debug("---- EMENTAS ----")
+    #logger.debug("---- EMENTAS ----")
     for row in rows:
-        logger.debug(row)
+        #logger.debug(row)
         content = {'sopa': row[0], 'pratos': row[1], 'sobremesa': row[2], 'preco': row[3]}
         payload.append(content) # appending to the payload to be returned
 
@@ -377,13 +377,13 @@ def listar_ementas():
 @app.route("/carregar_saldo", methods=['POST'])
 @auth_user
 def carregar_saldo():
-    logger.info("Carregar Saldo")
+    #logger.info("Carregar Saldo")
     content = request.get_json()
 
     if "n_identificacao" not in content or "saldo" not in content:
         return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
-    logger.info(f'Request Content: {content}')
+    #logger.info(f'Request Content: {content}')
 
     get_user_info = """
                 UPDATE utilizadores SET saldo = saldo + %s WHERE n_identificacao = %s;
@@ -399,10 +399,10 @@ def carregar_saldo():
         with db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(get_user_info, values)
-                logger.info(f'{get_user_info} {values}')
+                #logger.info(f'{get_user_info} {values}')
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        logger.error(error)
+        #logger.error(error)
         return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Saldo não carregado"})
     return {"Código": OK_CODE}
 
@@ -413,13 +413,13 @@ def carregar_saldo():
 @app.route("/registar_ementa", methods=['POST'])
 @auth_user
 def registar_ementa():
-    logger.info("Registar Ementa")
+    #logger.info("Registar Ementa")
     content = request.get_json()
 
     if "data" not in content or "ementas_id_ementa" not in content or "tipo" not in content:
         return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
-    logger.info(f'Request Content: {content}')
+    #logger.info(f'Request Content: {content}')
 
     get_user_info = """
                 INSERT INTO registo_ementas(data, ementas_id_ementa, tipo) VALUES(%s, %s, %s);
@@ -436,10 +436,10 @@ def registar_ementa():
         with db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(get_user_info, values)
-                logger.info(f'{get_user_info} {values}')
+                #logger.info(f'{get_user_info} {values}')
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        logger.error(error)
+        #logger.error(error)
         return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Ementa não comprada"})
     return {"Código": OK_CODE}
 
@@ -450,13 +450,13 @@ def registar_ementa():
 @app.route("/comprar_ementa", methods=['POST'])
 @auth_user
 def comprar_ementa():
-    logger.info("Comprar Ementa")
+    #logger.info("Comprar Ementa")
     content = request.get_json()
 
     if "data" not in content or "registo_ementas_id_registo" not in content:
         return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
-    logger.info(f'Request Content: {content}')
+    #logger.info(f'Request Content: {content}')
 
     get_user_info = """
                 INSERT INTO registo_reservas(data, registo_ementas_id_registo, utilizadores_id) VALUES(%s, %s, %s) RETURNING registo_ementas_id_registo;
@@ -475,11 +475,11 @@ def comprar_ementa():
         with db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(get_user_info, values)
-                logger.info(f'{get_user_info} {values}')
+                #logger.info(f'{get_user_info} {values}')
                 preco_refeicao = cursor.fetchone()[0]
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        logger.error(error)
+        #logger.error(error)
         return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Ementa não comprada"})
     return {"Código": OK_CODE}
 
@@ -490,7 +490,7 @@ def comprar_ementa():
 @app.route("/listar_ementas_compradas", methods=['POST'])
 @auth_user
 def listar_ementas_compradas():
-    logger.info("Listar Ementas Compradas")
+    #logger.info("Listar Ementas Compradas")
     content = request.get_json()
 
     conn = db_connection()
@@ -502,9 +502,9 @@ def listar_ementas_compradas():
     rows = cur.fetchall()
 
     payload = []
-    logger.debug("---- LISTAR EMENTAS COMPRADAS ----")
+    #logger.debug("---- LISTAR EMENTAS COMPRADAS ----")
     for row in rows:
-        logger.debug(row)
+        #logger.debug(row)
         content = {"Data da Compra": row[0], "Tipo de Refeição": row[1], "Data da Refeição": row[2], "Preço": row[3], "Sobremesa": row[4], "Sopa": row[5], "Prato": row[6], "Tipo": row[7]}
         payload.append(content) # appending to the payload to be returned
 
@@ -518,7 +518,7 @@ def listar_ementas_compradas():
 @app.route("/total_gastos", methods=['POST'])
 @auth_user
 def total_gastos():
-    logger.info("Total dos Gastos")
+    #logger.info("Total dos Gastos")
     content = request.get_json()
 
     conn = db_connection()
@@ -530,9 +530,9 @@ def total_gastos():
     rows = cur.fetchall()
 
     payload = []
-    logger.debug("---- TOTAL DOS GASTOS ----")
+    #logger.debug("---- TOTAL DOS GASTOS ----")
     for row in rows:
-        logger.debug(row)
+        #logger.debug(row)
         content = {"Total dos Gastos": row[0]}
         payload.append(content) # appending to the payload to be returned
 
@@ -546,7 +546,7 @@ def total_gastos():
 @app.route("/consultar_saldo", methods=['POST'])
 @auth_user
 def consultar_saldo():
-    logger.info("Consultar Saldo")
+    #logger.info("Consultar Saldo")
     content = request.get_json()
 
     conn = db_connection()
@@ -558,9 +558,9 @@ def consultar_saldo():
     rows = cur.fetchall()
 
     payload = []
-    logger.debug("---- CONSULTAR SALDO ----")
+    #logger.debug("---- CONSULTAR SALDO ----")
     for row in rows:
-        logger.debug(row)
+        #logger.debug(row)
         content = {"Saldo": row[0]}
         payload.append(content) # appending to the payload to be returned
 
@@ -580,24 +580,24 @@ def db_connection():
 if __name__ == "__main__":
 
     # Set up the logging
-    logging.basicConfig(filename="log_file.log")
-    logger = logging.getLogger('logger')
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
+    #logging.basicConfig(filename="log_file.log")
+    #logger = logging.get#logger('#logger')
+    #logger.setLevel(logging.DEBUG)
+    #ch = logging.StreamHandler()
+    #ch.setLevel(logging.DEBUG)
 
     # create formatter
-    formatter = logging.Formatter('%(asctime)s [%(levelname)s]:  %(message)s',
-                              '%H:%M:%S')
+    #formatter = logging.Formatter('%(asctime)s [%(levelname)s]:  %(message)s',
+    #                          '%H:%M:%S')
                               # "%Y-%m-%d %H:%M:%S") # not using DATE to simplify
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    #ch.setFormatter(formatter)
+    #logger.addHandler(ch)
 
 
     time.sleep(1) # just to let the DB start before this print :-)
 
 
-    logger.info("\n---------------------------------------------------------------\n" + 
+    #logger.info("\n---------------------------------------------------------------\n" + 
                   "API v1.0 online: http://localhost:8080/cantina/\n\n")
 
 
