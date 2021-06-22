@@ -516,7 +516,7 @@ def listar_ementas_compradas():
 ##########################################################
 ## LISTAR EMENTAS Registadas
 ##########################################################
-@app.route("/listar_ementas_compradas", methods=['POST'])
+@app.route("/listar_ementas_registadas", methods=['POST'])
 @auth_user
 def listar_ementas_compradas():
     #logger.info("Listar Ementas Compradas")
