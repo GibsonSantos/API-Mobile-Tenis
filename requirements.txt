@@ -1,7 +1,6 @@
 Flask
 gunicorn
 psycopg2
-logging
 time
 datetime 
 timedelta
