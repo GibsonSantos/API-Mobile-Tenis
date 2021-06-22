@@ -514,6 +514,34 @@ def listar_ementas_compradas():
 
 
 ##########################################################
+## LISTAR EMENTAS Registadas
+##########################################################
+@app.route("/listar_ementas_compradas", methods=['POST'])
+@auth_user
+def listar_ementas_compradas():
+    #logger.info("Listar Ementas Compradas")
+    content = request.get_json()
+
+    conn = db_connection()
+    cur = conn.cursor()
+
+    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+
+    cur.execute("SELECT registo_ementas.tipo, registo_ementas.data, ementas.preco, sobremesas.nome, sopas.nome, pratos.nome, pratos.tipo FROM registo_ementas, ementas, sobremesas, sopas, pratos WHERE registo_ementas.ementas_id_ementa = ementas.id_ementa AND ementas.sobremesas_id_sobremesa = sobremesas.id_sobremesa AND ementas.sopas_id_sopa = sopas.id_sopa AND ementas.pratos_id_prato = pratos.id_prato")
+    rows = cur.fetchall()
+
+    payload = []
+    #logger.debug("---- LISTAR EMENTAS COMPRADAS ----")
+    for row in rows:
+        #logger.debug(row)
+        content = {"Data da Refeição": row[1], "Tipo de Refeição": row[0], "Preço": row[3], "Sobremesa": row[4], "Sopa": row[5], "Prato": row[6], "Tipo": row[7]}
+        payload.append(content) # appending to the payload to be returned
+
+    conn.close()
+    return jsonify(payload)
+
+
+##########################################################
 ## TOTAL GASTOS
 ##########################################################
 @app.route("/total_gastos", methods=['POST'])
