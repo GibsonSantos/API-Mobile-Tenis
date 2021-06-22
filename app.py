@@ -82,8 +82,6 @@ def login():
 
     values = [content["n_identificacao"], content["senha"]]
 
-    print(get_user_info)
-
     try:
         with db_connection() as conn:
             with conn.cursor() as cursor:
@@ -98,6 +96,7 @@ def login():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
+        print(error)
         return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Utilizador não encontrado"})
     return {"Código": OK_CODE, 'Token': token.decode('utf-8')}
   
