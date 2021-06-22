@@ -534,7 +534,7 @@ def listar_ementas_compradas():
     #logger.debug("---- LISTAR EMENTAS COMPRADAS ----")
     for row in rows:
         #logger.debug(row)
-        content = {"Data da Refeição": row[1], "Tipo de Refeição": row[0], "Preço": row[3], "Sobremesa": row[4], "Sopa": row[5], "Prato": row[6], "Tipo": row[7]}
+        content = {"Data da Refeição": row[1], "Tipo de Refeição": row[0], "Preço": row[2], "Sobremesa": row[3], "Sopa": row[4], "Prato": row[5], "Tipo": row[6]}
         payload.append(content) # appending to the payload to be returned
 
     conn.close()
