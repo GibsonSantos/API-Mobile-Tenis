@@ -574,8 +574,9 @@ def consultar_saldo():
 ## DATABASE ACCESS
 ##########################################################
 def db_connection():
+    
     DATABASE_URL = os.environ.get('DATABASE_URL')
-    con = psycopg2.connect(DATABASE_URL)
+    db = psycopg2.connect(DATABASE_URL)
     return db
 
 
