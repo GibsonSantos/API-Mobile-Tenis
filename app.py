@@ -598,10 +598,8 @@ if __name__ == "__main__":
 
 
     #logger.info("\n---------------------------------------------------------------\n" + 
-                  "API v1.0 online: http://localhost:8080/cantina/\n\n")
+    #                  "API v1.0 online: http://localhost:8080/cantina/\n\n")
 
-
-    
 
     app.run(port=8080, debug=True, threaded=True)
     #hostname...
