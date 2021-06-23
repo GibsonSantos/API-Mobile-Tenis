@@ -518,7 +518,7 @@ def listar_ementas_compradas():
 ##########################################################
 @app.route("/listar_ementas_registadas", methods=['POST'])
 @auth_user
-def listar_ementas_compradas():
+def listar_ementas_registadas():
     #logger.info("Listar Ementas Compradas")
     content = request.get_json()
 
@@ -531,7 +531,7 @@ def listar_ementas_compradas():
     rows = cur.fetchall()
 
     payload = []
-    #logger.debug("---- LISTAR EMENTAS COMPRADAS ----")
+    #logger.debug("---- LISTAR EMENTAS PARA COMPRA ----")
     for row in rows:
         #logger.debug(row)
         content = {"Data da Refeição": row[1], "Tipo de Refeição": row[0], "Preço": row[2], "Sobremesa": row[3], "Sopa": row[4], "Prato": row[5], "Tipo": row[6]}
