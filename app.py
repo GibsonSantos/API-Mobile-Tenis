@@ -43,7 +43,7 @@ def auth_user(func):
     def decorated(*args, **kwargs):
         content = request.get_json()
         if content is None or "token" not in content or not content["token"]:
-            return jsonify({'Erro': 'Token está em falta!', 'Código': UNAUTHORIZED_CODE})
+            return jsonify({'Erro': 'Token está em falta!', 'Code': UNAUTHORIZED_CODE})
 
         try:
             token = content["token"]
@@ -52,11 +52,11 @@ def auth_user(func):
 
             decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
             if(decoded_token["expiration"] < str(datetime.utcnow())):
-                return jsonify({"Erro": "O Token expirou!", "Código": NOT_FOUND_CODE})
+                return jsonify({"Erro": "O Token expirou!", "Code": NOT_FOUND_CODE})
 
         except Exception as e:
             #logger.debug(e)
-            return jsonify({'Erro': 'Token inválido', 'Código': FORBIDDEN_CODE})
+            return jsonify({'Erro': 'Token inválido', 'Code': FORBIDDEN_CODE})
         return func(*args, **kwargs)
     return decorated
 
@@ -70,7 +70,7 @@ def login():
     content = request.get_json()
 
     if "n_identificacao" not in content or "senha" not in content:
-        return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
     #logger.info(f'Request Content: {content}')
 
@@ -97,8 +97,8 @@ def login():
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
         print(error)
-        return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Utilizador não encontrado"})
-    return {"Código": OK_CODE, 'Token': token.decode('utf-8')}
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Utilizador não encontrado"})
+    return {"Code": OK_CODE, 'Token': token.decode('utf-8')}
   
 
 ##########################################################
@@ -110,7 +110,7 @@ def registar_utilizador():
     content = request.get_json()
 
     if "n_identificacao" not in content or "nome" not in content or "senha" not in content or "email" not in content or "cargo" not in content: 
-        return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
     #logger.info(f'Request Content: {content}')
 
@@ -129,9 +129,9 @@ def registar_utilizador():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
-        #return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Utilizador não encontrado"})
-        return jsonify({"Código": NOT_FOUND_CODE, "Erro": str(error)})
-    return {"Código": OK_CODE}
+        #return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Utilizador não encontrado"})
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": str(error)})
+    return {"Code": OK_CODE}
 
 
 ##########################################################
@@ -144,7 +144,7 @@ def registar_sopa():
     content = request.get_json()
 
     if "nome" not in content:
-        return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
     #logger.info(f'Request Content: {content}')
 
@@ -157,7 +157,7 @@ def registar_sopa():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
     if(not decoded_token['administrador']):
-        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Código": FORBIDDEN_CODE})
+        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
 
     try:
         with db_connection() as conn:
@@ -167,8 +167,8 @@ def registar_sopa():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
-        return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Sopa não inserida"})
-    return {"Código": OK_CODE}
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Sopa não inserida"})
+    return {"Code": OK_CODE}
 
 
 ##########################################################
@@ -181,7 +181,7 @@ def registar_prato():
     content = request.get_json()
 
     if "tipo" not in content or "nome" not in content:
-        return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
     #logger.info(f'Request Content: {content}')
 
@@ -194,7 +194,7 @@ def registar_prato():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
     if(not decoded_token['administrador']):
-        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Código": FORBIDDEN_CODE})
+        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
 
 
     try:
@@ -205,8 +205,8 @@ def registar_prato():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
-        return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Prato não inserido"})
-    return {"Código": OK_CODE}
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Prato não inserido"})
+    return {"Code": OK_CODE}
 
 
 ##########################################################
@@ -219,7 +219,7 @@ def registar_sobremesa():
     content = request.get_json()
 
     if "nome" not in content:
-        return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
     #logger.info(f'Request Content: {content}')
 
@@ -232,7 +232,7 @@ def registar_sobremesa():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
     if(not decoded_token['administrador']):
-        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Código": FORBIDDEN_CODE})
+        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
 
 
     try:
@@ -243,8 +243,8 @@ def registar_sobremesa():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
-        return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Sobremesa não inserida"})
-    return {"Código": OK_CODE}
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Sobremesa não inserida"})
+    return {"Code": OK_CODE}
 
 
 ##########################################################
@@ -272,7 +272,7 @@ def listar_sps():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
     if(not decoded_token['administrador']):
-        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Código": FORBIDDEN_CODE})
+        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
 
 
     try:
@@ -292,7 +292,7 @@ def listar_sps():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error("Ocorreu um erro : %s", error)
-        return jsonify({"Erro": str(error), "Código": SERVER_ERROR})
+        return jsonify({"Erro": str(error), "Code": SERVER_ERROR})
 
     #logger.info("Statistics operation successful")
     return jsonify(
@@ -314,7 +314,7 @@ def criar_ementa():
     content = request.get_json()
 
     if "preco" not in content or "sobremesas_id_sobremesa" not in content or "sopas_id_sopa" not in content or "pratos_id_prato" not in content:
-        return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
     #logger.info(f'Request Content: {content}')
 
@@ -326,7 +326,7 @@ def criar_ementa():
     # Verifica se o token é de um admin
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
     if(not decoded_token['administrador']):
-        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Código": FORBIDDEN_CODE})
+        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
 
     values = [content["preco"], decoded_token['id'], content["sobremesas_id_sobremesa"], content["sopas_id_sopa"], content["pratos_id_prato"]]
 
@@ -341,8 +341,8 @@ def criar_ementa():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
-        return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Ementa não inserida"})
-    # return {"Código": OK_CODE}
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Ementa não inserida"})
+    # return {"Code": OK_CODE}
     return "%s" % (query)
 
 
@@ -382,7 +382,7 @@ def carregar_saldo():
     content = request.get_json()
 
     if "n_identificacao" not in content or "saldo" not in content:
-        return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
     #logger.info(f'Request Content: {content}')
 
@@ -394,7 +394,7 @@ def carregar_saldo():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
     if(not decoded_token['administrador']):
-        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Código": FORBIDDEN_CODE})
+        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
 
     try:
         with db_connection() as conn:
@@ -404,8 +404,8 @@ def carregar_saldo():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
-        return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Saldo não carregado"})
-    return {"Código": OK_CODE}
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Saldo não carregado"})
+    return {"Code": OK_CODE}
 
 
 ##########################################################
@@ -418,7 +418,7 @@ def registar_ementa():
     content = request.get_json()
 
     if "data" not in content or "ementas_id_ementa" not in content or "tipo" not in content:
-        return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
     #logger.info(f'Request Content: {content}')
 
@@ -429,7 +429,7 @@ def registar_ementa():
     # Verifica se o token é de um admin
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
     if(not decoded_token['administrador']):
-        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Código": FORBIDDEN_CODE})
+        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
 
     values = [content["data"], content["ementas_id_ementa"], content["tipo"]]
 
@@ -441,8 +441,8 @@ def registar_ementa():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
-        return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Ementa não comprada"})
-    return {"Código": OK_CODE}
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Ementa não comprada"})
+    return {"Code": OK_CODE}
 
 
 ##########################################################
@@ -455,7 +455,7 @@ def comprar_ementa():
     content = request.get_json()
 
     if "data" not in content or "registo_ementas_id_registo" not in content:
-        return jsonify({"Código": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
     #logger.info(f'Request Content: {content}')
 
@@ -467,7 +467,7 @@ def comprar_ementa():
     # Verifica se o token é de um admin
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
     if(not decoded_token['administrador']):
-        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Código": FORBIDDEN_CODE})
+        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
 
     values = [content["data"], content["registo_ementas_id_registo"], decoded_token["id"]]
 
@@ -481,8 +481,8 @@ def comprar_ementa():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
-        return jsonify({"Código": NOT_FOUND_CODE, "Erro": "Ementa não comprada"})
-    return {"Código": OK_CODE}
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Ementa não comprada"})
+    return {"Code": OK_CODE}
 
 
 ##########################################################
