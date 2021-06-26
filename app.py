@@ -468,7 +468,7 @@ def comprar_ementa():
     if(not decoded_token['administrador']):
         return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
 
-    values = [content["data"], content["registo_ementas_id_registo"], decoded_token["id"]]
+    values = [content["registo_ementas_id_registo"], decoded_token["id"]]
 
     # Compra a ementa
     try:
