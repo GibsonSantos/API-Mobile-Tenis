@@ -459,7 +459,7 @@ def comprar_ementa():
     #logger.info(f'Request Content: {content}')
 
     get_user_info = """
-                INSERT INTO registo_reservas(now(), registo_ementas_id_registo, utilizadores_id) VALUES(%s, %s, %s) RETURNING registo_ementas_id_registo;
+                INSERT INTO registo_reservas(now(), registo_ementas_id_registo, utilizadores_id) VALUES(%s, %s) RETURNING registo_ementas_id_registo;
                 """
 
 
