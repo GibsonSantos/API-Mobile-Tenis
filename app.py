@@ -459,7 +459,7 @@ def comprar_ementa():
     #logger.info(f'Request Content: {content}')
 
     get_user_info = """
-                    INSERT INTO registo_reservas(now(), registo_ementas_id_registo, utilizadores_id) VALUES(%s, %s) RETURNING registo_ementas_id_registo;
+                    INSERT INTO registo_reservas(data, registo_ementas_id_registo, utilizadores_id) VALUES(now(), %s, %s) RETURNING registo_ementas_id_registo;
                 """
 
 
@@ -480,7 +480,6 @@ def comprar_ementa():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
-        print(error);
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Ementa não comprada"})
     return {"Code": OK_CODE}
 
