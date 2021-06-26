@@ -560,14 +560,14 @@ def listar_ementas_registadas():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
 
-    cur.execute("SELECT registo_ementas.tipo, registo_ementas.data, ementas.preco, sobremesas.nome, sopas.nome, pratos.nome, pratos.tipo FROM registo_ementas, ementas, sobremesas, sopas, pratos WHERE registo_ementas.ementas_id_ementa = ementas.id_ementa AND ementas.sobremesas_id_sobremesa = sobremesas.id_sobremesa AND ementas.sopas_id_sopa = sopas.id_sopa AND ementas.pratos_id_prato = pratos.id_prato")
+    cur.execute("SELECT registo_ementas.tipo, registo_ementas.data, ementas.preco, sobremesas.nome, sopas.nome, pratos.nome, pratos.tipo, registo_ementas.id_registo FROM registo_ementas, ementas, sobremesas, sopas, pratos WHERE registo_ementas.ementas_id_ementa = ementas.id_ementa AND ementas.sobremesas_id_sobremesa = sobremesas.id_sobremesa AND ementas.sopas_id_sopa = sopas.id_sopa AND ementas.pratos_id_prato = pratos.id_prato")
     rows = cur.fetchall()
 
     payload = []
     #logger.debug("---- LISTAR EMENTAS PARA COMPRA ----")
     for row in rows:
         #logger.debug(row)
-        content = {"Data da Refeição": row[1], "Tipo de Refeição": row[0], "Preço": row[2], "Sobremesa": row[3], "Sopa": row[4], "Prato": row[5], "Tipo": row[6]}
+        content = {"Data da Refeição": row[1], "Tipo de Refeição": row[0], "Preço": row[2], "Sobremesa": row[3], "Sopa": row[4], "Prato": row[5], "Tipo": row[6], "Id": row[7]}
         payload.append(content) # appending to the payload to be returned
 
     conn.close()
