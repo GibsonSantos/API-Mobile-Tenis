@@ -531,7 +531,7 @@ def listar_ementas_compradas_data():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
 
-    cur.execute("SELECT  registo_ementas.id_registo, registo_ementas.tipo, registo_ementas.data, ementas.preco, sobremesas.nome, sopas.nome, pratos.nome, pratos.tipo, CASE WHEN registo_ementas.id_registo in (SELECT registo_ementas_id_registo from registo_reservas where utilizadores_id = %s) THEN true ELSE false END AS COMPRADA FROM registo_ementas, ementas, sobremesas, sopas, pratos WHERE registo_ementas.ementas_id_ementa = ementas.id_ementa AND ementas.sobremesas_id_sobremesa = sobremesas.id_sobremesa AND ementas.sopas_id_sopa = sopas.id_sopa AND ementas.pratos_id_prato = pratos.id_prato AND registo_ementas.data = %s;", (decoded_token["id"], content["data"],))
+    cur.execute("SELECT  registo_ementas.id_registo, registo_ementas.tipo, registo_ementas.data, ementas.preco, sobremesas.nome, sopas.nome, pratos.nome, pratos.tipo, CASE WHEN registo_ementas.id_registo in (SELECT registo_ementas_id_registo from registo_reservas where utilizadores_id = %s) THEN true ELSE false END AS COMPRADA, registo_ementas.id_registo FROM registo_ementas, ementas, sobremesas, sopas, pratos WHERE registo_ementas.ementas_id_ementa = ementas.id_ementa AND ementas.sobremesas_id_sobremesa = sobremesas.id_sobremesa AND ementas.sopas_id_sopa = sopas.id_sopa AND ementas.pratos_id_prato = pratos.id_prato AND registo_ementas.data = %s;", (decoded_token["id"], content["data"],))
 
     rows = cur.fetchall()
 
@@ -539,7 +539,7 @@ def listar_ementas_compradas_data():
     #logger.info("Listar Ementas Compradas por data")
     for row in rows:
         #logger.debug(row)
-        content = {"Data da Compra": row[0], "Tipo de Refeição": row[1], "Data da Refeição": row[2], "Preço": row[3], "Sobremesa": row[4], "Sopa": row[5], "Prato": row[6], "Tipo": row[7], "Comprado": row[8]}
+        content = {"Data da Compra": row[0], "Tipo de Refeição": row[1], "Data da Refeição": row[2], "Preço": row[3], "Sobremesa": row[4], "Sopa": row[5], "Prato": row[6], "Tipo": row[7], "Comprado": row[8], "Id": row[9]}
         payload.append(content) # appending to the payload to be returned
 
     conn.close()
