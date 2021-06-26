@@ -519,7 +519,7 @@ def listar_ementas_compradas():
 
 @app.route("/listar_ementas_compradas_data", methods=['POST'])
 @auth_user
-def listar_ementas_compradas():
+def listar_ementas_compradas_data():
     #logger.info("Listar Ementas Compradas por data")
     content = request.get_json()
 
