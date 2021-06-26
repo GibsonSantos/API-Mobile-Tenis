@@ -2,14 +2,13 @@
 ## ===========================================
 ## =============== API CANTINA ===============
 ## ===========================================
-## == CET CIBERSEGURANÇA - KROLIK & FARRELL ==
+## =======2020/2021 | CTESP - TPSI (OHP)======
 ## ===========================================
 ## ===========================================
 ##
 ## Authors: 
-##   Jorge Freitas <info@krolik.pt>
-##   Ricardo Rodrigues <ricard.rod13@gmail.com>
-##   CET CIBERSEGURANÇA
+##   Goncalo Marques <goncalo.marques@estgoh.ipc.pt>
+##   Aplicações Móveis (31000582)
 
 from flask import Flask, jsonify, request
 import logging, time, psycopg2, jwt, json
@@ -441,7 +440,7 @@ def registar_ementa():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         #logger.error(error)
-        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Ementa não comprada"})
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Ementa não registada"})
     return {"Code": OK_CODE}
 
 
@@ -454,13 +453,13 @@ def comprar_ementa():
     #logger.info("Comprar Ementa")
     content = request.get_json()
 
-    if "data" not in content or "registo_ementas_id_registo" not in content:
+    if "registo_ementas_id_registo" not in content:
         return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
     #logger.info(f'Request Content: {content}')
 
     get_user_info = """
-                INSERT INTO registo_reservas(data, registo_ementas_id_registo, utilizadores_id) VALUES(%s, %s, %s) RETURNING registo_ementas_id_registo;
+                INSERT INTO registo_reservas(now(), registo_ementas_id_registo, utilizadores_id) VALUES(%s, %s, %s) RETURNING registo_ementas_id_registo;
                 """
 
 
