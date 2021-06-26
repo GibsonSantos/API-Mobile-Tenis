@@ -588,7 +588,7 @@ def total_gastos():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
 
-    cur.execute("SELECT SUM(ementas.preco) AS soma_gastos FROM registo_reservas, registo_ementas, ementas, sobremesas, sopas, pratos WHERE registo_reservas.utilizadores_id = %s AND registo_reservas.registo_ementas_id_registo = registo_ementas.id_registo AND registo_ementas.ementas_id_ementa = ementas.id_ementa AND ementas.sobremesas_id_sobremesa = sobremesas.id_sobremesa AND ementas.sopas_id_sopa = sopas.id_sopa AND ementas.pratos_id_prato = pratos.id_prato GROUP BY ementas.preco;", (decoded_token["id"],))
+    cur.execute("SELECT SUM(ementas.preco) AS soma_gastos FROM registo_reservas, registo_ementas, ementas, sobremesas, sopas, pratos WHERE registo_reservas.utilizadores_id = %s AND registo_reservas.registo_ementas_id_registo = registo_ementas.id_registo AND registo_ementas.ementas_id_ementa = ementas.id_ementa AND ementas.sobremesas_id_sobremesa = sobremesas.id_sobremesa AND ementas.sopas_id_sopa = sopas.id_sopa AND ementas.pratos_id_prato = pratos.id_prato;", (decoded_token["id"],))
     rows = cur.fetchall()
 
     payload = []
