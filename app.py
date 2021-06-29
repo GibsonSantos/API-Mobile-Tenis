@@ -308,7 +308,7 @@ def listar_sps():
 ##########################################################
 @app.route("/listar_sopas", methods=['POST'])
 @auth_user
-def listar_sopar():
+def listar_sopas():
 
     get_sopas = """
                 SELECT * from sopas ORDER BY nome;
