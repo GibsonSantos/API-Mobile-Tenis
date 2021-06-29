@@ -304,6 +304,41 @@ def listar_sps():
 
 
 ##########################################################
+## LISTAGEM SOPAS
+##########################################################
+@app.route("/listar_sopas", methods=['POST'])
+@auth_user
+def listar_sps():
+
+    get_sopas = """
+                SELECT * from sopas ORDER BY nome;
+                """
+
+    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+    if(not decoded_token['administrador']):
+        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
+
+    try:
+        with db_connection() as conn:
+            # Create a view over the database
+            with conn.cursor() as cursor:
+
+                cursor.execute(get_sopas)
+                lista_sopas = cursor.fetchall()        
+
+        conn.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        #logger.error("Ocorreu um erro : %s", error)
+        return jsonify({"Erro": str(error), "Code": SERVER_ERROR})
+
+    #logger.info("Statistics operation successful")
+    return jsonify(
+        {                   
+            [{"id_sopa": id_sopa, "nome": nome} for id_sopa, nome in lista_sopas],
+        }
+    )
+
+##########################################################
 ## CRIAR EMENTA
 ##########################################################
 @app.route("/criar_ementa", methods=['POST'])
