@@ -336,7 +336,7 @@ def listar_sopas():
     #logger.info("Statistics operation successful")
     return jsonify(
         {                   
-            [{"id_sopa": id_sopa, "nome": nome} for id_sopa, nome in lista_sopas],
+            {"id_sopa": id_sopa, "nome": nome} for id_sopa, nome in lista_sopas,
         }
     )
 
