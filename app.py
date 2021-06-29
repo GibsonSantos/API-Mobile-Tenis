@@ -320,25 +320,18 @@ def listar_sopas():
     if(not decoded_token['administrador']):
         return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
 
-    try:
-        with db_connection() as conn:
-            # Create a view over the database
-            with conn.cursor() as cursor:
+    cur.execute(get_sopas)
+    rows = cur.fetchall()
 
-                cursor.execute(get_sopas)
-                lista_sopas = cursor.fetchall()        
+    payload = []
+    #logger.debug("---- EMENTAS ----")
+    for row in rows:
+        #logger.debug(row)
+        content = {'id_sopa': row[0], 'nome': row[2]}
+        payload.append(content) # appending to the payload to be returned
 
-        conn.close()
-    except (Exception, psycopg2.DatabaseError) as error:
-        #logger.error("Ocorreu um erro : %s", error)
-        return jsonify({"Erro": str(error), "Code": SERVER_ERROR})
-
-    #logger.info("Statistics operation successful")
-    return jsonify(
-        {                   
-            {"id_sopa": id_sopa, "nome": nome} for id_sopa, nome in lista_sopas
-        }
-    )
+    conn.close()
+    return jsonify(payload)
 
 ##########################################################
 ## CRIAR EMENTA
