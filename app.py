@@ -329,7 +329,7 @@ def listar_sopas():
     #logger.debug("---- EMENTAS ----")
     for row in rows:
         #logger.debug(row)
-        content = {'id_sopa': row[0], 'nome': row[2]}
+        content = {'id_sopa': row[0], 'nome': row[1]}
         payload.append(content) # appending to the payload to be returned
 
     conn.close()
