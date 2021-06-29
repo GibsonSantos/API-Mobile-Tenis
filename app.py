@@ -310,6 +310,8 @@ def listar_sps():
 @auth_user
 def listar_sopas():
 
+    content = request.get_json()
+
     get_sopas = """
                 SELECT * from sopas ORDER BY nome;
                 """
