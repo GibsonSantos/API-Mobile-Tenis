@@ -310,6 +310,8 @@ def listar_sps():
 @auth_user
 def listar_sopas():
 
+    conn = db_connection()
+    cur = conn.cursor()
     content = request.get_json()
 
     get_sopas = """
