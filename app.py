@@ -335,6 +335,71 @@ def listar_sopas():
     conn.close()
     return jsonify(payload)
 
+
+##########################################################
+## LISTAGEM SOBREMESAS
+##########################################################
+@app.route("/listar_sobremesas", methods=['POST'])
+@auth_user
+def listar_sobremesas():
+
+    conn = db_connection()
+    cur = conn.cursor()
+    content = request.get_json()
+
+    get_sopas = """
+                SELECT * from sobremesas ORDER BY nome;
+                """
+
+    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+    if(not decoded_token['administrador']):
+        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
+
+    cur.execute(get_sopas)
+    rows = cur.fetchall()
+
+    payload = []
+    #logger.debug("---- EMENTAS ----")
+    for row in rows:
+        #logger.debug(row)
+        content = {'id_sobremesa': row[0], 'nome': row[1]}
+        payload.append(content) # appending to the payload to be returned
+
+    conn.close()
+    return jsonify(payload)
+
+##########################################################
+## LISTAGEM PRATOS
+##########################################################
+@app.route("/listar_pratos", methods=['POST'])
+@auth_user
+def listar_pratos():
+
+    conn = db_connection()
+    cur = conn.cursor()
+    content = request.get_json()
+
+    get_sopas = """
+                SELECT * from pratos ORDER BY nome;
+                """
+
+    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+    if(not decoded_token['administrador']):
+        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
+
+    cur.execute(get_sopas)
+    rows = cur.fetchall()
+
+    payload = []
+    #logger.debug("---- EMENTAS ----")
+    for row in rows:
+        #logger.debug(row)
+        content = {'id_prato': row[0], 'nome': row[1], 'tipo': row[2]}
+        payload.append(content) # appending to the payload to be returned
+
+    conn.close()
+    return jsonify(payload)
+
 ##########################################################
 ## CRIAR EMENTA
 ##########################################################
