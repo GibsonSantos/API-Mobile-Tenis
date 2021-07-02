@@ -336,6 +336,34 @@ def listar_sopas():
     return jsonify(payload)
 
 
+
+
+##########################################################
+## LISTAR SE E ADMIN
+##########################################################
+@app.route("/isAdmin", methods=['POST'])
+@auth_user
+def isAdmin():
+
+    conn = db_connection()
+    cur = conn.cursor()
+    content = request.get_json()
+
+    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+
+    cur.execute("SELECT administrador FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
+    rows = cur.fetchall()
+
+    payload = []
+    for row in rows:
+        #logger.debug(row)
+        content = {'Admin': row[0]}
+        payload.append(content) # appending to the payload to be returned
+
+    conn.close()
+    return jsonify(payload)
+
+
 ##########################################################
 ## LISTAGEM SOBREMESAS
 ##########################################################
