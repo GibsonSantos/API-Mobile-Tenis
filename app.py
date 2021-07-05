@@ -353,15 +353,9 @@ def isAdmin():
 
     cur.execute("SELECT administrador FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
     rows = cur.fetchall()
-
-    payload = []
-    for row in rows:
-        #logger.debug(row)
-        content = {'Admin': row[0]}
-        payload.append(content) # appending to the payload to be returned
-
     conn.close()
-    return jsonify(payload)
+    return {"admin": row[0][0]}
+
 
 
 ##########################################################
