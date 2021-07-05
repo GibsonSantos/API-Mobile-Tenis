@@ -738,15 +738,9 @@ def consultar_saldo():
     cur.execute("SELECT saldo FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
     rows = cur.fetchall()
 
-    payload = []
-    #logger.debug("---- CONSULTAR SALDO ----")
-    for row in rows:
-        #logger.debug(row)
-        content = {"Saldo": row[0]}
-        payload.append(content) # appending to the payload to be returned
-
     conn.close()
-    return jsonify(payload)
+    return {"Saldo": rows[0][0]}
+
 
 
 ##########################################################
