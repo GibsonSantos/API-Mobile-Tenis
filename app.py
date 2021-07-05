@@ -354,7 +354,7 @@ def isAdmin():
     cur.execute("SELECT administrador FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
     rows = cur.fetchall()
     conn.close()
-    return {"admin": row[0][0]}
+    return {"admin": rows[0][0]}
 
 
 
