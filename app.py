@@ -744,6 +744,27 @@ def consultar_saldo():
 
 
 ##########################################################
+## CONSULTAR UTILIZADOR
+##########################################################
+@app.route("/consultar_utilizador", methods=['POST'])
+@auth_user
+def consultar_utilizador():
+    content = request.get_json()
+
+    conn = db_connection()
+    cur = conn.cursor()
+
+    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+
+    cur.execute("SELECT * FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
+    rows = cur.fetchall()
+
+    conn.close()
+    return jsonify({"Id: ": rows[0][1], "nome: ": rows[0][2], "e-mail: ": rows[0][4], "cargo: ": rows[0][6]})
+
+
+
+##########################################################
 ## DATABASE ACCESS
 ##########################################################
 def db_connection():
