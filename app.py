@@ -685,7 +685,7 @@ def consultar_utilizador():
     rows = cur.fetchall()
 
     conn.close()
-    return jsonify({"Id: ": rows[0][1], "nome: ": rows[0][2], "e-mail: ": rows[0][4], "cargo: ": rows[0][6]})
+    return jsonify({"Id": rows[0][1], "nome": rows[0][2], "e-mail": rows[0][4], "cargo": rows[0][6]})
 
 
 
