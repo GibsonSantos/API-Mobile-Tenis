@@ -476,14 +476,14 @@ def listar_ementas():
     conn = db_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT sopas.nome, pratos.nome, sobremesas.nome, preco FROM ementas, sopas, pratos, sobremesas WHERE ementas.sopas_id_sopa = sopas.id_sopa AND ementas.pratos_id_prato = pratos.id_prato AND ementas.sobremesas_id_sobremesa = sobremesas.id_sobremesa;")
+    cur.execute("SELECT sopas.nome, pratos.nome, sobremesas.nome, preco, ementas.id_ementa FROM ementas, sopas, pratos, sobremesas WHERE ementas.sopas_id_sopa = sopas.id_sopa AND ementas.pratos_id_prato = pratos.id_prato AND ementas.sobremesas_id_sobremesa = sobremesas.id_sobremesa;")
     rows = cur.fetchall()
 
     payload = []
     #logger.debug("---- EMENTAS ----")
     for row in rows:
         #logger.debug(row)
-        content = {'sopa': row[0], 'pratos': row[1], 'sobremesa': row[2], 'preco': row[3]}
+        content = {'sopa': row[0], 'pratos': row[1], 'sobremesa': row[2], 'preco': row[3], 'Id': row[4]}
         payload.append(content) # appending to the payload to be returned
 
     conn.close()
@@ -588,7 +588,7 @@ def comprar_ementa():
         return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
 
     values = [content["registo_ementas_id_registo"], decoded_token["id"]]
-    print(decoded_token["id"])
+
     # Compra a ementa
     try:
         with db_connection() as conn:
