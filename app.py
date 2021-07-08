@@ -660,7 +660,7 @@ def consultar_saldo():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
 
-    cur.execute("SELECT saldo FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
+    cur.execute("SELECT CAST (saldo AS NUMERIC(8,2)) FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
     rows = cur.fetchall()
 
     conn.close()
