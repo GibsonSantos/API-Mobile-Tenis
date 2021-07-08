@@ -588,7 +588,7 @@ def comprar_ementa():
         return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
 
     values = [content["registo_ementas_id_registo"], decoded_token["id"]]
-
+    print(decoded_token["id"])
     # Compra a ementa
     try:
         with db_connection() as conn:
