@@ -598,7 +598,7 @@ def comprar_ementa():
                 preco_refeicao = cursor.fetchone()[0]
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        #logger.error(error)
+        print(error)
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Ementa não comprada"})
     return {"Code": OK_CODE}
 
