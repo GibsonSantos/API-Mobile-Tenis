@@ -103,8 +103,6 @@ def registar_utilizador():
     if "n_identificacao" not in content or "nome" not in content or "senha" not in content or "email" not in content or "cargo" not in content: 
         return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
-    #logger.info(f'Request Content: {content}')
-
     get_user_info = """
                 INSERT INTO utilizadores(n_identificacao, nome, senha, email, cargo, administrador) 
                 VALUES(%s, %s, crypt(%s, gen_salt('bf')), %s, %s, FALSE);
@@ -214,10 +212,8 @@ def registar_sobremesa():
         with db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(get_user_info, values)
-                #logger.info(f'{get_user_info} {values}')
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        #logger.error(error)
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Sobremesa não inserida"})
     return {"Code": OK_CODE}
 
@@ -249,7 +245,7 @@ def listar_sps():
 
     try:
         with db_connection() as conn:
-            # Create a view over the database
+
             with conn.cursor() as cursor:
 
                 cursor.execute(get_sopas)
@@ -299,7 +295,7 @@ def listar_sopas():
     payload = []
     for row in rows:
         content = {'id_sopa': row[0], 'nome': row[1]}
-        payload.append(content) # appending to the payload to be returned
+        payload.append(content)
 
     conn.close()
     return jsonify(payload)
@@ -438,7 +434,7 @@ def listar_ementas():
     payload = []
     for row in rows:
         content = {'sopa': row[0], 'pratos': row[1], 'sobremesa': row[2], 'preco': row[3], 'Id': row[4]}
-        payload.append(content) # appending to the payload to be returned
+        payload.append(content)
 
     conn.close()
     return jsonify(payload)
@@ -644,7 +640,7 @@ def total_gastos():
 
     for row in rows:
         content = {"Total dos Gastos": row[0]}
-        payload.append(content) # appending to the payload to be returned
+        payload.append(content)
 
     conn.close()
     return jsonify(payload)
