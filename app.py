@@ -660,19 +660,9 @@ def consultar_saldo():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
 
-    cur.execute("SELECT CAST (saldo AS NUMERIC(8,2)) FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
+    cur.execute("SELECT CAST(CAST(saldo AS NUMERIC(8,2)) AS VARCHAR) FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
     rows = cur.fetchall()
     conn.close()
-
-
-    try:
-        with db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute("SELECT CAST (saldo AS NUMERIC(8,2)) FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
-        conn.close()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-
     return {"Saldo": rows[0][0]}
 
 
