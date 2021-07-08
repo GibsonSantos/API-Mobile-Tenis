@@ -617,14 +617,14 @@ def listar_ementas_compradas():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
 
-    cur.execute("SELECT registo_reservas.data, registo_ementas.tipo, registo_ementas.data, ementas.preco, sobremesas.nome, sopas.nome, pratos.nome, pratos.tipo FROM registo_reservas, registo_ementas, ementas, sobremesas, sopas, pratos WHERE registo_reservas.utilizadores_id = %s AND registo_reservas.registo_ementas_id_registo = registo_ementas.id_registo AND registo_ementas.ementas_id_ementa = ementas.id_ementa AND ementas.sobremesas_id_sobremesa = sobremesas.id_sobremesa AND ementas.sopas_id_sopa = sopas.id_sopa AND ementas.pratos_id_prato = pratos.id_prato;", (decoded_token["id"],))
+    cur.execute("SELECT registo_reservas.data, registo_ementas.tipo, registo_ementas.data, ementas.preco, sobremesas.nome, sopas.nome, pratos.nome, pratos.tipo, registo_reservas.id_reserva FROM registo_reservas, registo_ementas, ementas, sobremesas, sopas, pratos WHERE registo_reservas.utilizadores_id = %s AND registo_reservas.registo_ementas_id_registo = registo_ementas.id_registo AND registo_ementas.ementas_id_ementa = ementas.id_ementa AND ementas.sobremesas_id_sobremesa = sobremesas.id_sobremesa AND ementas.sopas_id_sopa = sopas.id_sopa AND ementas.pratos_id_prato = pratos.id_prato;", (decoded_token["id"],))
     rows = cur.fetchall()
 
     payload = []
     #logger.debug("---- LISTAR EMENTAS COMPRADAS ----")
     for row in rows:
         #logger.debug(row)
-        content = {"Data da Compra": row[0], "Tipo de Refeição": row[1], "Data da Refeição": row[2], "Preço": row[3], "Sobremesa": row[4], "Sopa": row[5], "Prato": row[6], "Tipo": row[7]}
+        content = {"Id": row[8],"Data da Compra": row[0], "Tipo de Refeição": row[1], "Data da Refeição": row[2], "Preço": row[3], "Sobremesa": row[4], "Sopa": row[5], "Prato": row[6], "Tipo": row[7]}
         payload.append(content) # appending to the payload to be returned
 
     conn.close()
@@ -658,7 +658,7 @@ def listar_ementas_compradas_data():
     #logger.info("Listar Ementas Compradas por data")
     for row in rows:
         #logger.debug(row)
-        content = {"Data da Compra": row[0], "Tipo de Refeição": row[1], "Data da Refeição": row[2], "Preço": row[3], "Sobremesa": row[4], "Sopa": row[5], "Prato": row[6], "Tipo": row[7], "Comprado": row[8], "Id": row[9]}
+        content = {"Id": row[0], "Tipo de Refeição": row[1], "Data da Refeição": row[2], "Preço": row[3], "Sobremesa": row[4], "Sopa": row[5], "Prato": row[6], "Tipo": row[7], "Comprado": row[8], "Id": row[9]}
         payload.append(content) # appending to the payload to be returned
 
     conn.close()
