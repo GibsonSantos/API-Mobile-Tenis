@@ -511,7 +511,7 @@ def registar_ementa():
         return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
     get_user_info = """
-                INSERT INTO registo_ementas(data, ementas_id_ementa, tipo) VALUES(%s, %s, %s);
+                INSERT INTO registo_ementas(data, ementas_id_ementa, tipo) VALUES(to_date(%s,'DD-MM-YYYY'), %s, %s);
                 """
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
