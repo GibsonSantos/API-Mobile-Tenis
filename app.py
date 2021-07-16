@@ -717,6 +717,41 @@ def consultar_utilizador():
 
 
 ##########################################################
+## ENVIAR REPORTS
+##########################################################
+@app.route("/enviar_report", methods=['POST'])
+@auth_user
+def enviar_report():
+    content = request.get_json()
+
+    if "data" not in content or "assunto" not in content or "mensagem" not in content or "info" not in content or or "anonimo" not in content:
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+
+    insert_report = """
+                INSERT INTO report(assunto, mensagem, utilizador_id, info_dispositivo, data_envio) VALUES(%s, %s, %s, %s, now());
+                """
+
+    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+    
+    if content["anonimo"] == "True":
+        user = null
+    else:
+        user = decoded_token["id"]
+
+    values = [content["assunto"], content["mensagem"], user, content["info"]]
+
+    try:
+        with db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(insert_report, values)
+        conn.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Report não registado"})
+    return {"Code": OK_CODE}
+
+
+
+##########################################################
 ## DATABASE ACCESS
 ##########################################################
 def db_connection():
