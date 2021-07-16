@@ -608,7 +608,7 @@ def listar_ementas_compradas_data():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
 
-    cur.execute("SELECT  registo_ementas.id_registo, registo_ementas.tipo, to_char(registo_ementas.data, 'dd-MM-YYYY'), ementas.preco, sobremesas.nome, sopas.nome, pratos.nome, pratos.tipo, CASE WHEN registo_ementas.id_registo in (SELECT registo_ementas_id_registo from registo_reservas where utilizadores_id = %s) THEN true ELSE false END AS COMPRADA, registo_ementas.id_registo FROM registo_ementas, ementas, sobremesas, sopas, pratos WHERE registo_ementas.ementas_id_ementa = ementas.id_ementa AND ementas.sobremesas_id_sobremesa = sobremesas.id_sobremesa AND ementas.sopas_id_sopa = sopas.id_sopa AND ementas.pratos_id_prato = pratos.id_prato AND registo_ementas.data = to_char(DATE %s, 'DD-MM-YYYY');", (decoded_token["id"], content["data"],))
+    cur.execute("SELECT  registo_ementas.id_registo, registo_ementas.tipo, to_char(registo_ementas.data, 'dd-MM-YYYY'), ementas.preco, sobremesas.nome, sopas.nome, pratos.nome, pratos.tipo, CASE WHEN registo_ementas.id_registo in (SELECT registo_ementas_id_registo from registo_reservas where utilizadores_id = %s) THEN true ELSE false END AS COMPRADA, registo_ementas.id_registo FROM registo_ementas, ementas, sobremesas, sopas, pratos WHERE registo_ementas.ementas_id_ementa = ementas.id_ementa AND ementas.sobremesas_id_sobremesa = sobremesas.id_sobremesa AND ementas.sopas_id_sopa = sopas.id_sopa AND ementas.pratos_id_prato = pratos.id_prato AND registo_ementas.data = to_date(%s,'DD-MM-YYYY');", (decoded_token["id"], content["data"],))
 
     rows = cur.fetchall()
 
