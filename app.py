@@ -733,7 +733,7 @@ def enviar_report():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
     
-    if content["anonimo"] == True:
+    if content["anonimo"] == "True":
         user = None
     else:
         user = decoded_token["id"]
