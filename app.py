@@ -452,7 +452,7 @@ def actualizar_utilizador():
         return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
     get_user_info = """
-                UPDATE utilizadores SET nome = %s, mail = %s WHERE id = %s;
+                UPDATE utilizadores SET nome = %s, email = %s WHERE id = %s;
                 """
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
     values = [content["nome"], content["email"], decoded_token["id"]]
