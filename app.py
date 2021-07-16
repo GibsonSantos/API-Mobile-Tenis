@@ -441,6 +441,33 @@ def listar_ementas():
 
 
 ##########################################################
+## ACTUALIZAR UTILIZADOR
+##########################################################
+@app.route("/actualizar_utilizador", methods=['POST'])
+@auth_user
+def actualizar_utilizador():
+    content = request.get_json()
+
+    if "nome" not in content or "email" not in content: 
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+
+    get_user_info = """
+                UPDATE utilizadores SET nome = %s, mail = %s WHERE id = %s;
+                """
+    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+    values = [content["nome"], content["email"], decoded_token["id"]]
+
+    try:
+        with db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(get_user_info, values)
+        conn.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Utilizador não actualizado!"})
+    return {"Code": OK_CODE}
+
+
+##########################################################
 ## CARREGAR SALDO
 ##########################################################
 @app.route("/carregar_saldo", methods=['POST'])
@@ -469,6 +496,7 @@ def carregar_saldo():
     except (Exception, psycopg2.DatabaseError) as error:
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Saldo não carregado"})
     return {"Code": OK_CODE}
+
 
 
 ##########################################################
