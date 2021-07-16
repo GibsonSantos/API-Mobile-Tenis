@@ -724,7 +724,7 @@ def consultar_utilizador():
 def enviar_report():
     content = request.get_json()
 
-    if "data" not in content or "assunto" not in content or "mensagem" not in content or "info" not in content or "anonimo" not in content:
+    if "assunto" not in content or "mensagem" not in content or "info" not in content or "anonimo" not in content:
         return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
 
     insert_report = """
