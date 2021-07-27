@@ -415,7 +415,8 @@ def criar_ementa():
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Ementa não inserida"})
-    return jsonify("%s" % (query))
+        content = {'id_ementa': "%s" % (query)}
+    return jsonify(content)
 
 
 ##########################################################
