@@ -546,8 +546,8 @@ def comprar_ementa():
                 """
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
-    if(not decoded_token['administrador']):
-        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
+    #if(not decoded_token['administrador']):
+    #    return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
 
     values = [content["registo_ementas_id_registo"], decoded_token["id"]]
 
