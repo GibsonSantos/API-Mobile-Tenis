@@ -377,7 +377,7 @@ def listar_pratos():
 
     payload = []
     for row in rows:
-        content = {'id_prato': row[0], 'nome': row[1], 'tipo': row[2]}
+        content = {'id_prato': row[0], 'nome': row[2], 'tipo': row[1]}
         payload.append(content) # appending to the payload to be returned
 
     conn.close()
