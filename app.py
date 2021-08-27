@@ -160,6 +160,85 @@ def consultar_utilizador():
     return jsonify({"Id": rows[0][1], "nome": rows[0][2], "e-mail": rows[0][4], "cargo": rows[0][6]})
 
 
+
+
+##########################################################
+## LISTAR SE E ADMIN
+##########################################################
+@app.route("/isAdmin", methods=['POST'])
+@auth_user
+def isAdmin():
+
+    conn = db_connection()
+    cur = conn.cursor()
+    content = request.get_json()
+
+    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+
+    cur.execute("SELECT administrador FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
+    rows = cur.fetchall()
+    conn.close()
+    return {"admin": rows[0][0]}
+
+
+
+##########################################################
+## ACTUALIZAR UTILIZADOR
+##########################################################
+@app.route("/actualizar_utilizador", methods=['POST'])
+@auth_user
+def actualizar_utilizador():
+    content = request.get_json()
+
+    if "nome" not in content or "email" not in content: 
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+
+    get_user_info = """
+                UPDATE utilizadores SET nome = %s, email = %s WHERE id = %s;
+                """
+    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+    values = [content["nome"], content["email"], decoded_token["id"]]
+
+    try:
+        with db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(get_user_info, values)
+        conn.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Utilizador não actualizado!"})
+    return {"Code": OK_CODE}
+
+
+##########################################################
+## CARREGAR SALDO
+##########################################################
+@app.route("/carregar_saldo", methods=['POST'])
+@auth_user
+def carregar_saldo():
+    content = request.get_json()
+
+    if "n_identificacao" not in content or "saldo" not in content:
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+
+    get_user_info = """
+                UPDATE utilizadores SET saldo = saldo + %s WHERE n_identificacao = %s;
+                """
+
+    values = [content["saldo"], content["n_identificacao"]]
+
+    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+    if(not decoded_token['administrador']):
+        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
+
+    try:
+        with db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(get_user_info, values)
+        conn.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Saldo não carregado"})
+    return {"Code": OK_CODE}
+
 ##########################################################
 ## ENVIAR REPORTS
 ##########################################################
