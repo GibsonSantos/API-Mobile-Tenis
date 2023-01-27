@@ -182,7 +182,7 @@ def isAdmin():
 
 @app.route("/test",methods=['GET'])
 def test():
-    return jsonify({"response": "Obttido com sucesso"})
+    return jsonify({"response": "Obttido com sucessso"})
 
 
 
