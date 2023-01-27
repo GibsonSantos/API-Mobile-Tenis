@@ -180,6 +180,10 @@ def isAdmin():
     conn.close()
     return {"admin": rows[0][0]}
 
+@app.route("/test",methods=['GET'])
+def test():
+    return jsonify({"response": "Obttido com sucesso"})
+
 
 
 ##########################################################
@@ -278,14 +282,15 @@ def enviar_report():
 ## DATABASE ACCESS
 ##########################################################
 def db_connection():
-    
-    DATABASE_URL = os.environ.get('DATABASE_URL')
-    db = psycopg2.connect(DATABASE_URL)
+    host = os.environ.get("localhost")
+    dbname = os.environ.get('ProjetoLocal')
+    user = os.environ.get('a2020127699')
+    password = os.environ.get('Gibsonoliveira10')
+
+    db = psycopg2.connect(host = host, dbname = dbname,user=user,password=password)
     return db
 
 
 if __name__ == "__main__":
-
-    time.sleep(1) # just to let the DB start before this print :-)
 
     app.run(port=8080, debug=True, threaded=True)
