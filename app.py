@@ -7,12 +7,14 @@
 ## ===========================================
 ##
 ## Authors: 
-##   Goncalo Marques 
+##   Goncalo Marques
+import base64
 
 from flask import Flask, jsonify, request
 import logging, time, psycopg2, jwt, json
 from datetime import datetime, timedelta
 from functools import wraps
+from cryptography.fernet import Fernet
 import bcrypt
 import os
   
@@ -67,15 +69,13 @@ def login():
 
     if "name" not in content or "password" not in content:
         return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
-    password_bytes = content["password"].enconde()
+
     get_user_info = """
                 SELECT *
                 FROM utilizadores
-                WHERE name = %s AND password = crypt(%s, senha);
+                WHERE u_name = %s AND u_password = crypt(%s, u_password);
                 """
-
-    values = [content["name"], password_bytes]
-
+    values = [content["name"],content["password"]]
     try:
         with db_connection() as conn:
             with conn.cursor() as cursor:
@@ -83,7 +83,6 @@ def login():
                 rows = cursor.fetchall()
                 token = jwt.encode({
                     'id': rows[0][0],
-                    'administrador': rows[0][7],
                     'expiration': str(datetime.utcnow() + timedelta(hours=1))
                 }, app.config['SECRET_KEY'])
         conn.close()
@@ -91,6 +90,7 @@ def login():
         print(error)
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Utilizador não encontrado"})
     return {"Code": OK_CODE, 'Token': token.decode('utf-8')}
+
   
 
 ##########################################################
@@ -102,15 +102,14 @@ def registar_utilizador():
 
     if "name" not in content or "password" not in content:
         return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
-    password_bytes = content["password"].encode()
-    hashed = bcrypt.hashpw(password_bytes,bcrypt.gensalt())
-    print(hashed)
+
+
     get_user_info = """
                 INSERT INTO utilizadores(u_name, u_password) 
-                VALUES(%s,%s);
+                VALUES(%s,crypt(%s,gen_salt('bf')));
                 """
 
-    values = [content["name"], hashed]
+    values = [content["name"], content["password"]]
 
     try:
         with db_connection() as conn:
