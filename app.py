@@ -143,6 +143,11 @@ def inserir_game():
     if "name" not in content or "namePlayer1" not in content or "namePlayer2" not in content or "date" not in content:
         return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parametros invalidos"})
 
+    insertGame = "INSERT into games(g_name, g_date,g_name_player1,g_name_player2, g_versao) VALUES(%s, %s, %s,%s,%i)"
+
+    vaues = [content["name"], content["date"].strftime('%Y-%m-%d'), content["namePlayer1"],content["namePlayer2"],content["versao"]]
+
+
 
 
 ##########################################################
