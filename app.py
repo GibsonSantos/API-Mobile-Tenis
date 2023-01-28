@@ -85,7 +85,7 @@ def login():
                     'id': rows[0][0],
                     'expiration': str(datetime.utcnow() + timedelta(hours=1))
                 }, app.config['SECRET_KEY'])
-        conn.close()
+
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Utilizador não encontrado"})
@@ -126,7 +126,6 @@ def registar_utilizador():
                 if cursor.fetchone():
                     return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Nome já está a ser utilizado"})
                 cursor.execute(get_user_info, valuesInsert)
-        conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": str(error)})
     return {"Code": OK_CODE}
@@ -140,14 +139,29 @@ def registar_utilizador():
 def inserir_game():
     content = request.get_json()
 
-    if "name" not in content or "namePlayer1" not in content or "namePlayer2" not in content or "date" not in content:
+    if "name" not in content or "namePlayer1" not in content or "namePlayer2" not in content or "date" not in content or "versao" not in content:
         return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parametros invalidos"})
 
-    insertGame = "INSERT into games(g_name, g_date,g_name_player1,g_name_player2, g_versao) VALUES(%s, %s, %s,%s,%i)"
+    insertGame = "INSERT into games(g_name, g_date,g_name_player1,g_name_player2, g_versao, g_u_id) VALUES(%s, %s, %s,%s,%s,%s)"
 
-    vaues = [content["name"], content["date"].strftime('%Y-%m-%d'), content["namePlayer1"],content["namePlayer2"],content["versao"]]
+    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
 
+    values = [content["name"], content["date"], content["namePlayer1"],content["namePlayer2"],content["versao"], (decoded_token["id"],)]
 
+    try:
+        with db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(insertGame,values)
+    except (Exception, psycopg2.DatabaseError) as error:
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": str(error)})
+    return {"Code": OK_CODE}
+
+##########################################################
+## CONSULTAR JOGOS
+##########################################################
+@app.route("/consultar_jogos", methods=['GET'])
+@auth_user
+def consultar_jogos():
 
 
 ##########################################################
