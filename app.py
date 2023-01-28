@@ -13,6 +13,7 @@ from flask import Flask, jsonify, request
 import logging, time, psycopg2, jwt, json
 from datetime import datetime, timedelta
 from functools import wraps
+import bcrypt
 import os
   
 app = Flask(__name__)   
@@ -64,16 +65,16 @@ def auth_user(func):
 def login():
     content = request.get_json()
 
-    if "n_identificacao" not in content or "senha" not in content:
+    if "name" not in content or "password" not in content:
         return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
-
+    password_bytes = content["password"].enconde()
     get_user_info = """
                 SELECT *
                 FROM utilizadores
-                WHERE n_identificacao = %s AND senha = crypt(%s, senha);
+                WHERE name = %s AND password = crypt(%s, senha);
                 """
 
-    values = [content["n_identificacao"], content["senha"]]
+    values = [content["name"], password_bytes]
 
     try:
         with db_connection() as conn:
@@ -99,15 +100,17 @@ def login():
 def registar_utilizador():
     content = request.get_json()
 
-    if "n_identificacao" not in content or "nome" not in content or "senha" not in content or "email" not in content or "cargo" not in content: 
+    if "name" not in content or "password" not in content:
         return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
-
+    password_bytes = content["password"].encode()
+    hashed = bcrypt.hashpw(password_bytes,bcrypt.gensalt())
+    print(hashed)
     get_user_info = """
-                INSERT INTO utilizadores(n_identificacao, nome, senha, email, cargo, administrador) 
-                VALUES(%s, %s, crypt(%s, gen_salt('bf')), %s, %s, FALSE);
+                INSERT INTO utilizadores(u_name, u_password) 
+                VALUES(%s,%s);
                 """
 
-    values = [content["n_identificacao"], content["nome"], content["senha"], content["email"], content["cargo"]]
+    values = [content["name"], hashed]
 
     try:
         with db_connection() as conn:
@@ -282,12 +285,7 @@ def enviar_report():
 ## DATABASE ACCESS
 ##########################################################
 def db_connection():
-    host = os.environ.get("localhost")
-    dbname = os.environ.get('ProjetoLocal')
-    user = os.environ.get('a2020127699')
-    password = os.environ.get('Gibsonoliveira10')
-
-    db = psycopg2.connect(host = host, dbname = dbname,user=user,password=password)
+    db = psycopg2.connect("dbname=db2020127699 user=a2020127699 password=Gibsonoliveira10 host=aid.estgoh.ipc.pt port=5432")
     return db
 
 
