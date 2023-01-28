@@ -109,16 +109,40 @@ def registar_utilizador():
                 VALUES(%s,crypt(%s,gen_salt('bf')));
                 """
 
-    values = [content["name"], content["password"]]
+    valuesInsert = [content["name"], content["password"]]
+
+    check_unique_name = """
+                SELECT * from utilizadores 
+                WHERE u_name = %s
+                """
+
+    valuesCheck = [content['name']];
+
 
     try:
         with db_connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute(get_user_info, values)
+                cursor.execute(check_unique_name, valuesCheck)
+                if cursor.fetchone():
+                    return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Nome já está a ser utilizado"})
+                cursor.execute(get_user_info, valuesInsert)
         conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": str(error)})
     return {"Code": OK_CODE}
+
+
+##########################################################
+## INSERIR JOGO
+##########################################################
+@app.route("/inserir_game", methods=['POST'])
+@auth_user
+def inserir_game():
+    content = request.get_json()
+
+    if "name" not in content or "namePlayer1" not in content or "namePlayer2" not in content or "date" not in content:
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parametros invalidos"})
+
 
 
 ##########################################################
