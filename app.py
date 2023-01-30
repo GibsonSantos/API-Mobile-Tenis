@@ -89,7 +89,7 @@ def login():
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Utilizador não encontrado"})
-    return {"Code": OK_CODE, 'Token': token.decode('utf-8')}
+    return jsonify({"Code": OK_CODE, 'Token': token.decode('utf-8')})
 
   
 
@@ -128,7 +128,7 @@ def registar_utilizador():
                 cursor.execute(get_user_info, valuesInsert)
     except (Exception, psycopg2.DatabaseError) as error:
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": str(error)})
-    return {"Code": OK_CODE}
+    return jsonify({"Code": OK_CODE})
 
 
 ##########################################################
@@ -146,7 +146,7 @@ def inserir_game():
 
     decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
 
-    values = [content["name"], content["date"], content["namePlayer1"],content["namePlayer2"],content["versao"], (decoded_token["id"],)]
+    values = [content["name"], content["date"], content["namePlayer1"],content["namePlayer2"],content["versao"], decoded_token["id"]]
 
     try:
         with db_connection() as conn:
@@ -154,7 +154,7 @@ def inserir_game():
                 cursor.execute(insertGame,values)
     except (Exception, psycopg2.DatabaseError) as error:
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": str(error)})
-    return {"Code": OK_CODE}
+    return jsonify({"Code": OK_CODE})
 
 ##########################################################
 ## CONSULTAR JOGOS
@@ -162,166 +162,48 @@ def inserir_game():
 @app.route("/consultar_jogos", methods=['GET'])
 @auth_user
 def consultar_jogos():
-
-
-##########################################################
-## CONSULTAR SALDO
-##########################################################
-@app.route("/consultar_saldo", methods=['POST'])
-@auth_user
-def consultar_saldo():
-
-    content = request.get_json()
-
-    conn = db_connection()
-    cur = conn.cursor()
-
-    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
-
-    cur.execute("SELECT CAST(CAST(saldo AS NUMERIC(8,2)) AS VARCHAR) FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
-    rows = cur.fetchall()
-    conn.close()
-    return {"Saldo": rows[0][0]}
-
-
-
-##########################################################
-## CONSULTAR UTILIZADOR
-##########################################################
-@app.route("/consultar_utilizador", methods=['POST'])
-@auth_user
-def consultar_utilizador():
-    content = request.get_json()
-
-    conn = db_connection()
-    cur = conn.cursor()
-
-    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
-
-    cur.execute("SELECT * FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
-    rows = cur.fetchall()
-
-    conn.close()
-    return jsonify({"Id": rows[0][1], "nome": rows[0][2], "e-mail": rows[0][4], "cargo": rows[0][6]})
-
-
-
-
-##########################################################
-## LISTAR SE E ADMIN
-##########################################################
-@app.route("/isAdmin", methods=['POST'])
-@auth_user
-def isAdmin():
-
-    conn = db_connection()
-    cur = conn.cursor()
-    content = request.get_json()
-
-    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
-
-    cur.execute("SELECT administrador FROM utilizadores WHERE id = %s;", (decoded_token["id"],))
-    rows = cur.fetchall()
-    conn.close()
-    return {"admin": rows[0][0]}
-
-@app.route("/test",methods=['GET'])
-def test():
-    return jsonify({"response": "Obttido com sucessso"})
-
-
-
-##########################################################
-## ACTUALIZAR UTILIZADOR
-##########################################################
-@app.route("/actualizar_utilizador", methods=['POST'])
-@auth_user
-def actualizar_utilizador():
-    content = request.get_json()
-
-    if "nome" not in content or "email" not in content: 
-        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
-
-    get_user_info = """
-                UPDATE utilizadores SET nome = %s, email = %s WHERE id = %s;
-                """
-    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
-    values = [content["nome"], content["email"], decoded_token["id"]]
-
+    query = """
+        SELECT * from games
+    """
     try:
         with db_connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute(get_user_info, values)
-        conn.close()
-    except (Exception, psycopg2.DatabaseError) as error:
-        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Utilizador não actualizado!"})
-    return {"Code": OK_CODE}
-
+                cursor.execute(query)
+                games = [{col[0]: row[id] for id, col in enumerate(cursor.description)} for row in cursor.fetchall()]
+                return jsonify(games);
+    except(Exception,psycopg2.DatabaseError) as error:
+        print(error)
+        return jsonify({"Code": NOT_FOUND_CODE, "ERROR": "Erro ao buscar os jogos!"})
 
 ##########################################################
-## CARREGAR SALDO
+## ATUALIZAR JOGO
 ##########################################################
-@app.route("/carregar_saldo", methods=['POST'])
+@app.route("/atualizar_jogo", methods=['PUT'])
 @auth_user
-def carregar_saldo():
+def atualizar_jogo():
     content = request.get_json()
 
-    if "n_identificacao" not in content or "saldo" not in content:
-        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
+    query = """
+         UPDATE games
+         SET g_name = %s, g_name_player1 = %s, g_name_player2 = %s 
+         WHERE g_id = %s AND g_u_id = %s
+    """
 
-    get_user_info = """
-                UPDATE utilizadores SET saldo = saldo + %s WHERE n_identificacao = %s;
-                """
+    decoded_token = jwt.decode(content["token"], app.config['SECRET_KEY'])
 
-    values = [content["saldo"], content["n_identificacao"]]
-
-    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
-    if(not decoded_token['administrador']):
-        return jsonify({"Erro": "O utilizador não tem esses privilégios", "Code": FORBIDDEN_CODE})
-
+    values = [content["g_name"], content["g_name_player1"], content["g_name_player2"], content["g_id"], decoded_token["id"]]
     try:
         with db_connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute(get_user_info, values)
-        conn.close()
-    except (Exception, psycopg2.DatabaseError) as error:
-        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Saldo não carregado"})
-    return {"Code": OK_CODE}
-
-##########################################################
-## ENVIAR REPORTS
-##########################################################
-@app.route("/enviar_report", methods=['POST'])
-@auth_user
-def enviar_report():
-    content = request.get_json()
-
-    if "assunto" not in content or "mensagem" not in content or "info" not in content or "anonimo" not in content:
-        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parâmetros inválidos"})
-
-    insert_report = """
-                INSERT INTO report(assunto, mensagem, utilizador_id, info_dispositivo, data_envio) VALUES(%s, %s, %s, %s, now());
-                """
-
-    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
-    
-    if content["anonimo"] == "True":
-        user = None
+                cursor.execute(query,values)
+                rows_update = cursor.rowcount
+    except(Exception,psycopg2.DatabaseError) as error:
+        print(error)
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": str(error)})
+    if rows_update > 0:
+        return jsonify({"Code": OK_CODE})
     else:
-        user = decoded_token["id"]
-
-    values = [content["assunto"], content["mensagem"], user, content["info"]]
-
-    try:
-        with db_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(insert_report, values)
-        conn.close()
-    except (Exception, psycopg2.DatabaseError) as error:
-        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Report não registado"})
-    return {"Code": OK_CODE}
-
-
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Atualização proibida"})
 
 ##########################################################
 ## DATABASE ACCESS
