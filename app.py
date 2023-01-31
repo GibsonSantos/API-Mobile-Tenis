@@ -52,6 +52,8 @@ def auth_user(func):
 
             decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
             if(decoded_token["expiration"] < str(datetime.utcnow())):
+                decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+                print(decoded_token["id"])
                 return jsonify({"Erro": "O Token expirou!", "Code": NOT_FOUND_CODE})
 
         except Exception as e:
@@ -176,11 +178,11 @@ def consultar_jogos():
         return jsonify({"Code": NOT_FOUND_CODE, "ERROR": "Erro ao buscar os jogos!"})
 
 ##########################################################
-## ATUALIZAR JOGO
+## EDITAR JOGO (Nome, nome de jogador,...)
 ##########################################################
-@app.route("/atualizar_jogo", methods=['PUT'])
+@app.route("/editar_jogo", methods=['PUT'])
 @auth_user
-def atualizar_jogo():
+def editar_jogo():
     content = request.get_json()
 
     query = """
@@ -204,6 +206,39 @@ def atualizar_jogo():
         return jsonify({"Code": OK_CODE})
     else:
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Atualização proibida"})
+
+##########################################################
+## EDITAR JOGO (Nome, nome de jogador,...)
+##########################################################
+@app.route("/update_score", methods=['PUT'])
+@auth_user
+def update_score():
+    content = request.get_json()
+
+    decoded_token = jwt.decode(content["token"], app.config['SECRET_KEY'])
+
+    values = [content["g_name_set"].strip("'"), content["g_name_set"].strip("'"),decoded_token["id"]]
+
+    query = """UPDATE games SET {} = {}+1
+               WHERE g_id = (SELECT g_id FROM games
+                            WHERE g_u_id = {}
+                            ORDER BY g_id DESC
+                            LIMIT 1)""".format(*values)
+
+    try:
+        with db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query,values)
+                rows_update = cursor.rowcount
+    except(Exception,psycopg2.DatabaseError) as error:
+        print(error)
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": str(error)})
+    if rows_update > 0:
+        return jsonify({"Code": OK_CODE})
+    else:
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Atualização proibida"})
+
+
 
 ##########################################################
 ## DATABASE ACCESS
