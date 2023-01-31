@@ -217,9 +217,9 @@ def update_score():
 
     decoded_token = jwt.decode(content["token"], app.config['SECRET_KEY'])
 
-    values = [content["g_name_set"].strip("'"), content["g_name_set"].strip("'"),decoded_token["id"]]
+    values = [content["g_name_column"].strip("'"), content["g_new_score"],decoded_token["id"]]
 
-    query = """UPDATE games SET {} = {}+1
+    query = """UPDATE games SET {} = {}
                WHERE g_id = (SELECT g_id FROM games
                             WHERE g_u_id = {}
                             ORDER BY g_id DESC
@@ -237,6 +237,33 @@ def update_score():
         return jsonify({"Code": OK_CODE})
     else:
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Atualização proibida"})
+
+@app.route("/delete_game", methods=['DELETE'])
+@auth_user
+def delete_game():
+    content = request.get_json()
+
+    query = """ 
+            DELETE FROM games
+            where g_id = %s AND g_u_id = %s
+    """
+
+    decoded_token = jwt.decode(content["token"], app.config["SECRET_KEY"])
+
+    values = [content["g_id"],decoded_token["id"]]
+
+    try:
+        with db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query,values)
+                rows_deleted = cursor.rowcount
+    except(Exception,psycopg2.DatabaseError) as error:
+        print(error)
+        return jsonify({"Code": NOT_FOUND_CODE, "Error": str(error)})
+    if rows_deleted > 0:
+        return jsonify({"Code": OK_CODE})
+    else:
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Deleção proibida"})
 
 
 
