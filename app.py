@@ -42,17 +42,16 @@ def home():
 def auth_user(func):
     @wraps(func)
     def decorated(*args, **kwargs):
-        content = request.get_json()
-        if content is None or "token" not in content or not content["token"]:
+        token = request.headers.get("Authorization")
+        if not token:
             return jsonify({'Erro': 'Token está em falta!', 'Code': UNAUTHORIZED_CODE})
 
         try:
-            token = content["token"]
             data = jwt.decode(token, app.config['SECRET_KEY'])    
 
-            decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+            decoded_token = jwt.decode(token, app.config['SECRET_KEY'])
             if(decoded_token["expiration"] < str(datetime.utcnow())):
-                decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+                decoded_token = jwt.decode(token, app.config['SECRET_KEY'])
                 print(decoded_token["id"])
                 return jsonify({"Erro": "O Token expirou!", "Code": NOT_FOUND_CODE})
 
@@ -136,27 +135,31 @@ def registar_utilizador():
 ##########################################################
 ## INSERIR JOGO
 ##########################################################
-@app.route("/inserir_game", methods=['POST'])
+@app.route("/start_game", methods=['POST'])
 @auth_user
-def inserir_game():
+def start_game():
     content = request.get_json()
 
-    if "name" not in content or "namePlayer1" not in content or "namePlayer2" not in content or "date" not in content or "versao" not in content:
+    token = request.headers.get("Authorization")
+
+    if "g_name" not in content or "g_name_player1" not in content or "g_name_player2" not in content or "g_date" not in content or "g_versao" not in content:
         return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parametros invalidos"})
 
     insertGame = "INSERT into games(g_name, g_date,g_name_player1,g_name_player2, g_versao, g_u_id) VALUES(%s, %s, %s,%s,%s,%s)"
 
-    decoded_token = jwt.decode(content['token'], app.config['SECRET_KEY'])
+    decoded_token = jwt.decode(token, app.config['SECRET_KEY'])
 
-    values = [content["name"], content["date"], content["namePlayer1"],content["namePlayer2"],content["versao"], decoded_token["id"]]
+    values = [content["g_name"], content["g_date"], content["g_name_player1"],content["g_name_player2"],content["g_versao"], decoded_token["id"]]
 
     try:
         with db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(insertGame,values)
+                cursor.execute("SELECT MAX(g_id) from games")
+                game_id = cursor.fetchone()[0]
     except (Exception, psycopg2.DatabaseError) as error:
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": str(error)})
-    return jsonify({"Code": OK_CODE})
+    return jsonify({"Code": OK_CODE, "game_id":game_id})
 
 ##########################################################
 ## CONSULTAR JOGOS
@@ -165,7 +168,7 @@ def inserir_game():
 @auth_user
 def consultar_jogos():
     query = """
-        SELECT * from games
+        SELECT * from games ORDER BY g_id
     """
     try:
         with db_connection() as conn:
@@ -176,6 +179,29 @@ def consultar_jogos():
     except(Exception,psycopg2.DatabaseError) as error:
         print(error)
         return jsonify({"Code": NOT_FOUND_CODE, "ERROR": "Erro ao buscar os jogos!"})
+
+##########################################################
+## CONSULTAR JOGOS
+##########################################################
+@app.route("/live_game/<g_id>", methods=['GET'])
+@auth_user
+def live_game(g_id):
+    query = """
+        SELECT * from games where g_id = %s ORDER BY g_id
+    """
+
+    values = [g_id]
+    try:
+        with db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query,values)
+                columns = [col[0] for col in cursor.description]
+                game = dict(zip(columns, cursor.fetchone()))
+                return jsonify(game)
+    except(Exception,psycopg2.DatabaseError) as error:
+        print(error)
+        return jsonify({"Code": NOT_FOUND_CODE, "ERROR": "Erro ao busca o jogo!"})
+
 
 ##########################################################
 ## EDITAR JOGO (Nome, nome de jogador,...)
@@ -215,11 +241,16 @@ def editar_jogo():
 def update_score():
     content = request.get_json()
 
-    decoded_token = jwt.decode(content["token"], app.config['SECRET_KEY'])
+    token = request.headers.get("Authorization")
 
-    values = [content["g_name_column"].strip("'"), content["g_new_score"],decoded_token["id"]]
+    if "column" not in content or "versaoGame" not in content or "scoreSet" not in content :
+        return jsonify({"Code": BAD_REQUEST_CODE, "Erro": "Parametros invalidos"})
 
-    query = """UPDATE games SET {} = {}
+    decoded_token = jwt.decode(token, app.config['SECRET_KEY'])
+
+    values = [content["column"].strip("'"),"'"+ content["scoreSet"] +"'",content["versaoGame"] ,decoded_token["id"]]
+
+    query = """UPDATE games SET {} = {}, g_versao = {}
                WHERE g_id = (SELECT g_id FROM games
                             WHERE g_u_id = {}
                             ORDER BY g_id DESC
@@ -238,19 +269,18 @@ def update_score():
     else:
         return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Atualização proibida"})
 
-@app.route("/delete_game", methods=['DELETE'])
+@app.route("/delete_game/<g_id>", methods=['DELETE'])
 @auth_user
-def delete_game():
-    content = request.get_json()
-
-    query = """ 
+def delete_game(g_id):
+    token = request.headers.get("Authorization")
+    query = """     
             DELETE FROM games
             where g_id = %s AND g_u_id = %s
     """
 
-    decoded_token = jwt.decode(content["token"], app.config["SECRET_KEY"])
+    decoded_token = jwt.decode(token, app.config["SECRET_KEY"])
 
-    values = [content["g_id"],decoded_token["id"]]
+    values = [g_id,decoded_token["id"]]
 
     try:
         with db_connection() as conn:
@@ -263,7 +293,8 @@ def delete_game():
     if rows_deleted > 0:
         return jsonify({"Code": OK_CODE})
     else:
-        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Deleção proibida"})
+        return jsonify({"Code": NOT_FOUND_CODE, "Erro": "Deleção proibida"}),400
+
 
 
 
